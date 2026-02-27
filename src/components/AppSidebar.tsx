@@ -1,4 +1,4 @@
-import { Database, ShieldCheck, Activity, FileText, Search } from "lucide-react";
+import { Database, ShieldCheck, Activity, FileText, Search, ClipboardList } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -21,6 +21,7 @@ const dbItems = [
 
 const engineItems = [
   { title: "Decision Engine", url: "/", icon: Activity },
+  { title: "Verification Results", url: "/results", icon: ClipboardList },
   { title: "Audit Logs", url: "/audit", icon: FileText },
 ];
 

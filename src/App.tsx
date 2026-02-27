@@ -8,6 +8,7 @@ import DecisionEnginePage from "@/pages/DecisionEnginePage";
 import BlacklistPage from "@/pages/BlacklistPage";
 import DukcapilPage from "@/pages/DukcapilPage";
 import AuditPage from "@/pages/AuditPage";
+import VerificationResultsPage from "@/pages/VerificationResultsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
             <Route path="/" element={<DecisionEnginePage />} />
             <Route path="/blacklist" element={<BlacklistPage />} />
             <Route path="/dukcapil" element={<DukcapilPage />} />
+            <Route path="/results" element={<VerificationResultsPage />} />
             <Route path="/audit" element={<AuditPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

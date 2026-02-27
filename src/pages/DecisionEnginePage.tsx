@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, CheckCircle2, XCircle, Shield, Camera, Lock, HardDrive, Search } from "lucide-react";
 import { useAuditStore } from "@/stores/audit-store";
+import { useVerificationStore } from "@/stores/verification-store";
 
 function ScoreBar({ label, score }: { label: string; score: number }) {
   const color = score > 85 ? 'bg-success' : score > 60 ? 'bg-warning' : 'bg-danger';
@@ -29,6 +30,7 @@ export default function DecisionEnginePage() {
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const addLog = useAuditStore((s) => s.addLog);
+  const addResult = useVerificationStore((s) => s.addResult);
 
   const runVerification = () => {
     setError(null);
@@ -43,7 +45,7 @@ export default function DecisionEnginePage() {
     const blacklisted = initialBlacklist.some((b) => b.nik === nik);
     if (blacklisted) {
       const entry = initialBlacklist.find((b) => b.nik === nik)!;
-      setResult({
+      const res: VerificationResult = {
         nik,
         nama: entry.nama,
         identity_score: 20,
@@ -54,7 +56,9 @@ export default function DecisionEnginePage() {
         message: 'Maaf, Verifikasi Gagal (Indikasi Fraud)',
         blacklisted: true,
         found_in_dukcapil: true,
-      });
+      };
+      setResult(res);
+      addResult(res);
       addLog(createAuditLog('Admin', 'Verification - REJECTED (Blacklisted)', `NIK: ${nik}`));
       return;
     }
@@ -87,12 +91,14 @@ export default function DecisionEnginePage() {
       message = 'Maaf, Verifikasi Gagal (Indikasi Fraud)';
     }
 
-    setResult({
+    const res: VerificationResult = {
       nik, nama: citizen.nama,
       identity_score, security_score, cdd_score, final_score,
       risk_level, message,
       blacklisted: false, found_in_dukcapil: true,
-    });
+    };
+    setResult(res);
+    addResult(res);
     addLog(createAuditLog('Admin', `Verification - ${risk_level}`, `NIK: ${nik}, Score: ${final_score}`));
   };
 
