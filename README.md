@@ -2,15 +2,20 @@
 
 # Verilabs KYC Decision Engine
 
-A modern web application for KYC (Know Your Customer) verification, simulation, and management. Built with React, TypeScript, Vite, Tailwind CSS, and a modular UI component system.
+A web application for VeriLabs KYC (Know Your Customer) dashboard
+
+# Related Links
+
+- Mobile Flutter Repo: https://github.com/mumtazalwan/VeriLabs.git
+- Mobile APK: https://drive.google.com/drive/folders/1Ea4fuNCE4h4PWaFU8nK4wpRs4pSmT_Wp
+- Frontend Repo: https://github.com/AlvaJufinto/verilabs
+- Frontend Deployment: https://verilabs.vercel.app/
+- Backend Repo: https://github.com/AlvaJufinto/vl-service
 
 ## Features
 
-- KYC Decision Engine: Simulate and verify NIK (Indonesian ID) with trust scoring and risk analysis
 - Dukcapil Data Simulation: Fetch and display citizen data from API
-- Blacklist & Audit Log: Manage and track verification and blacklist events
 - Verification Results: View, filter, and analyze verification history with grades and trends
-- Responsive, modern UI with sidebar navigation
 - API integration for all data (no static/mock data)
 
 ## Tech Stack
@@ -18,7 +23,6 @@ A modern web application for KYC (Know Your Customer) verification, simulation, 
 - React + TypeScript
 - Vite
 - Tailwind CSS
-- Lucide Icons
 - Zustand (state management)
 - Supabase (backend, via API)
 
