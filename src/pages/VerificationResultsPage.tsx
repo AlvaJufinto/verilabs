@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import {
 	AlertTriangle,
 	CheckCircle2,
+	ChevronDown,
+	ChevronUp,
 	ClipboardList,
 	Minus,
 	Search,
@@ -63,6 +65,10 @@ export default function VerificationResultsPage() {
 	const [search, setSearch] = useState("");
 	const [filterRisk, setFilterRisk] = useState<string>("all");
 	const [results, setResults] = useState<any[]>([]);
+	const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+	const [subExpanded, setSubExpanded] = useState<
+		Record<string, Record<string, boolean>>
+	>({});
 	const [stats, setStats] = useState({
 		total: 0,
 		approved: 0,
@@ -75,10 +81,7 @@ export default function VerificationResultsPage() {
 	const API_URL = import.meta.env.VITE_API_URL;
 
 	const fetchResults = async () => {
-		if (!API_URL) {
-			setError("API_URL tidak ditemukan");
-			return;
-		}
+		if (!API_URL) return setError("API_URL tidak ditemukan");
 
 		setLoading(true);
 		setError(null);
@@ -91,12 +94,8 @@ export default function VerificationResultsPage() {
 			const res = await fetch(
 				`${API_URL}/v1/kyc/verification-results?${params.toString()}`,
 			);
-
 			const data = await res.json();
-
-			if (!res.ok) {
-				throw new Error(data.error || "Gagal mengambil data");
-			}
+			if (!res.ok) throw new Error(data.error || "Gagal mengambil data");
 
 			setResults(data.data || []);
 			setStats({
@@ -116,19 +115,30 @@ export default function VerificationResultsPage() {
 		fetchResults();
 	}, [search, filterRisk]);
 
+	const toggleExpand = (id: string) => {
+		setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+	};
+
+	const toggleSubExpand = (id: string, section: string) => {
+		setSubExpanded((prev) => ({
+			...prev,
+			[id]: { ...prev[id], [section]: !prev[id]?.[section] },
+		}));
+	};
+
 	return (
 		<div className="space-y-6">
+			{/* Header & Summary */}
 			<div>
 				<h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-					<ClipboardList className="h-6 w-6 text-primary" />
-					Verification Results
+					<ClipboardList className="h-6 w-6 text-primary" /> Verification
+					Results
 				</h1>
 				<p className="text-muted-foreground text-sm mt-1">
-					Riwayat hasil verifikasi KYC — Score, Grade, dan Predikat
+					Riwayat hasil verifikasi KYC — Score, Grade, Predikat, dan Status
 				</p>
 			</div>
 
-			{/* Summary */}
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 				<Card>
 					<CardContent className="pt-6 text-center">
@@ -138,7 +148,6 @@ export default function VerificationResultsPage() {
 						</p>
 					</CardContent>
 				</Card>
-
 				<Card className="border-success/30">
 					<CardContent className="pt-6 text-center">
 						<p className="text-3xl font-bold font-mono text-success">
@@ -147,7 +156,6 @@ export default function VerificationResultsPage() {
 						<p className="text-xs text-muted-foreground mt-1">Approved</p>
 					</CardContent>
 				</Card>
-
 				<Card className="border-warning/30">
 					<CardContent className="pt-6 text-center">
 						<p className="text-3xl font-bold font-mono text-warning">
@@ -156,7 +164,6 @@ export default function VerificationResultsPage() {
 						<p className="text-xs text-muted-foreground mt-1">Manual Review</p>
 					</CardContent>
 				</Card>
-
 				<Card className="border-danger/30">
 					<CardContent className="pt-6 text-center">
 						<p className="text-3xl font-bold font-mono text-danger">
@@ -205,11 +212,12 @@ export default function VerificationResultsPage() {
 						<Table>
 							<TableHeader>
 								<TableRow>
+									<TableHead></TableHead>
 									<TableHead>NIK</TableHead>
 									<TableHead>Nama</TableHead>
 									<TableHead className="text-center">Identity</TableHead>
-									<TableHead className="text-center">Security</TableHead>
-									<TableHead className="text-center">CDD</TableHead>
+									<TableHead className="text-center">Risk</TableHead>
+									<TableHead className="text-center">Compliance</TableHead>
 									<TableHead className="text-center">Final Score</TableHead>
 									<TableHead className="text-center">Grade</TableHead>
 									<TableHead>Predikat</TableHead>
@@ -222,58 +230,194 @@ export default function VerificationResultsPage() {
 								{results.length === 0 ? (
 									<TableRow>
 										<TableCell
-											colSpan={10}
+											colSpan={11}
 											className="text-center py-12 text-muted-foreground"
 										>
 											Belum ada hasil verifikasi.
 										</TableCell>
 									</TableRow>
 								) : (
-									results.map((r, i) => {
+									results.map((r) => {
 										const cfg = riskConfig[r.status] || riskConfig["Rejected"];
+										const isExpanded = expanded[r.idx];
 
 										return (
-											<TableRow key={i}>
-												<TableCell className="font-mono text-sm">
-													{r.nik}
-												</TableCell>
-												<TableCell className="font-medium">{r.nama}</TableCell>
-												<TableCell className="text-center font-mono">
-													{r.identity_score}
-												</TableCell>
-												<TableCell className="text-center font-mono">
-													{r.security_score}
-												</TableCell>
-												<TableCell className="text-center font-mono">
-													{r.cdd_score}
-												</TableCell>
-												<TableCell className="text-center">
-													<span className="font-mono font-bold text-lg">
-														{r.final_score}
-													</span>
-												</TableCell>
-												<TableCell className="text-center">
-													<Badge
-														variant="outline"
-														className="font-mono font-bold"
-													>
-														{r.grade}
-													</Badge>
-												</TableCell>
-												<TableCell>{r.predikat}</TableCell>
-												<TableCell>
-													<Badge
-														variant="outline"
-														className={`${cfg.badgeClass} gap-1`}
-													>
-														{cfg.icon}
-														{cfg.label}
-													</Badge>
-												</TableCell>
-												<TableCell className="text-center">
-													<ScoreTrend trend={r.trend} />
-												</TableCell>
-											</TableRow>
+											<>
+												<TableRow
+													key={r.idx}
+													className="cursor-pointer"
+													onClick={() => toggleExpand(r.idx)}
+												>
+													<TableCell className="text-center">
+														{isExpanded ? (
+															<ChevronUp className="h-4 w-4" />
+														) : (
+															<ChevronDown className="h-4 w-4" />
+														)}
+													</TableCell>
+													<TableCell className="font-mono text-sm">
+														{r.nik}
+													</TableCell>
+													<TableCell className="font-medium">
+														{r.nama}
+													</TableCell>
+													<TableCell className="text-center font-mono">
+														{r.identity_score}
+													</TableCell>
+													<TableCell className="text-center font-mono">
+														{r.risk_score}
+													</TableCell>
+													<TableCell className="text-center font-mono">
+														{r.compliance_score}
+													</TableCell>
+													<TableCell className="text-center">
+														<span className="font-mono font-bold text-lg">
+															{r.final_score}
+														</span>
+													</TableCell>
+													<TableCell className="text-center">
+														<Badge
+															variant="outline"
+															className="font-mono font-bold"
+														>
+															{r.grade || "-"}
+														</Badge>
+													</TableCell>
+													<TableCell>{r.predikat || "-"}</TableCell>
+													<TableCell>
+														<Badge
+															variant="outline"
+															className={`${cfg.badgeClass} gap-1`}
+														>
+															{cfg.icon}
+															{cfg.label}
+														</Badge>
+													</TableCell>
+													<TableCell className="text-center">
+														<ScoreTrend trend={r.trend} />
+													</TableCell>
+												</TableRow>
+
+												{isExpanded && (
+													<TableRow className="bg-muted-foreground/10">
+														<TableCell colSpan={11} className="p-4 space-y-3">
+															{/* Reason Accordion */}
+															<div className="border rounded p-2">
+																<div
+																	className="flex justify-between items-center cursor-pointer"
+																	onClick={() =>
+																		toggleSubExpand(r.idx, "reason")
+																	}
+																>
+																	<strong>Reason</strong>
+																	{subExpanded[r.idx]?.reason ? (
+																		<ChevronUp />
+																	) : (
+																		<ChevronDown />
+																	)}
+																</div>
+																{subExpanded[r.idx]?.reason && (
+																	<ul className="list-disc pl-5 mt-2">
+																		{r.reason.map(
+																			(item: string, idx: number) => (
+																				<li key={idx}>{item}</li>
+																			),
+																		)}
+																	</ul>
+																)}
+															</div>
+
+															{/* SERP Results Accordion */}
+															<div className="border rounded p-2">
+																<div
+																	className="flex justify-between items-center cursor-pointer"
+																	onClick={() =>
+																		toggleSubExpand(r.idx, "serper")
+																	}
+																>
+																	<strong>SERP Results</strong>
+																	{subExpanded[r.idx]?.serper ? (
+																		<ChevronUp />
+																	) : (
+																		<ChevronDown />
+																	)}
+																</div>
+																{subExpanded[r.idx]?.serper && (
+																	<div className="mt-2 space-y-2 text-sm">
+																		{r.serper_result.organic.map(
+																			(item: any, idx: number) => (
+																				<div
+																					key={idx}
+																					className="border p-2 rounded bg-white/50"
+																				>
+																					<p>
+																						<strong>{item.title}</strong>{" "}
+																						<span className="text-muted-foreground text-xs">
+																							({item.position})
+																						</span>
+																					</p>
+																					<p className="text-blue-600 underline break-all">
+																						<a href={item.link} target="_blank">
+																							{item.link}
+																						</a>
+																					</p>
+																					<p className="text-muted-foreground">
+																						{item.snippet}
+																					</p>
+																					{item.date && (
+																						<p className="text-muted-foreground text-xs">
+																							Date: {item.date}
+																						</p>
+																					)}
+																				</div>
+																			),
+																		)}
+																	</div>
+																)}
+															</div>
+
+															{/* Identity Compliance Accordion */}
+															<div className="border rounded p-2">
+																<div
+																	className="flex justify-between items-center cursor-pointer"
+																	onClick={() =>
+																		toggleSubExpand(r.idx, "compliance")
+																	}
+																>
+																	<strong>Identity Compliance</strong>
+																	{subExpanded[r.idx]?.compliance ? (
+																		<ChevronUp />
+																	) : (
+																		<ChevronDown />
+																	)}
+																</div>
+																{subExpanded[r.idx]?.compliance && (
+																	<div className="mt-2 space-y-2 text-sm">
+																		<p>
+																			<strong>Alasan:</strong>{" "}
+																			{r.identity_compliance_result.alasan}
+																		</p>
+																		<p>
+																			<strong>Identity Score:</strong>{" "}
+																			{
+																				r.identity_compliance_result
+																					.identity_score
+																			}
+																		</p>
+																		<p>
+																			<strong>Compliance Score:</strong>{" "}
+																			{
+																				r.identity_compliance_result
+																					.compliance_score
+																			}
+																		</p>
+																	</div>
+																)}
+															</div>
+														</TableCell>
+													</TableRow>
+												)}
+											</>
 										);
 									})
 								)}
