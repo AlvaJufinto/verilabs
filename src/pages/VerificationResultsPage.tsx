@@ -8,10 +8,6 @@ import {
 	ChevronDown,
 	ChevronUp,
 	ClipboardList,
-	Minus,
-	Search,
-	TrendingDown,
-	TrendingUp,
 	XCircle,
 } from "lucide-react";
 
@@ -33,12 +29,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-
-function ScoreTrend({ trend }: { trend: string }) {
-	if (trend === "up") return <TrendingUp className="h-4 w-4 text-success" />;
-	if (trend === "down") return <TrendingDown className="h-4 w-4 text-danger" />;
-	return <Minus className="h-4 w-4 text-warning" />;
-}
 
 const riskConfig: Record<
 	string,
@@ -95,6 +85,7 @@ export default function VerificationResultsPage() {
 				`${API_URL}/v1/kyc/verification-results?${params.toString()}`,
 			);
 			const data = await res.json();
+			console.log("🚀 ~ fetchResults ~ data:", data);
 			if (!res.ok) throw new Error(data.error || "Gagal mengambil data");
 
 			setResults(data.data || []);
@@ -135,7 +126,7 @@ export default function VerificationResultsPage() {
 					Results
 				</h1>
 				<p className="text-muted-foreground text-sm mt-1">
-					Riwayat hasil verifikasi KYC — Score, Grade, Predikat, dan Status
+					Riwayat hasil verifikasi KYC — Score dan Status
 				</p>
 			</div>
 
@@ -177,7 +168,6 @@ export default function VerificationResultsPage() {
 			{/* Filters */}
 			<div className="flex gap-3">
 				<div className="relative flex-1 max-w-sm">
-					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 					<Input
 						placeholder="Cari NIK atau Nama..."
 						value={search}
@@ -219,10 +209,8 @@ export default function VerificationResultsPage() {
 									<TableHead className="text-center">Risk</TableHead>
 									<TableHead className="text-center">Compliance</TableHead>
 									<TableHead className="text-center">Final Score</TableHead>
-									<TableHead className="text-center">Grade</TableHead>
-									<TableHead>Predikat</TableHead>
+									<TableHead className="text-center">Timestamp</TableHead>
 									<TableHead>Status</TableHead>
-									<TableHead className="text-center">Trend</TableHead>
 								</TableRow>
 							</TableHeader>
 
@@ -230,7 +218,7 @@ export default function VerificationResultsPage() {
 								{results.length === 0 ? (
 									<TableRow>
 										<TableCell
-											colSpan={11}
+											colSpan={9}
 											className="text-center py-12 text-muted-foreground"
 										>
 											Belum ada hasil verifikasi.
@@ -275,15 +263,9 @@ export default function VerificationResultsPage() {
 															{r.final_score}
 														</span>
 													</TableCell>
-													<TableCell className="text-center">
-														<Badge
-															variant="outline"
-															className="font-mono font-bold"
-														>
-															{r.grade || "-"}
-														</Badge>
+													<TableCell className="text-center font-mono">
+														{r.created_at}
 													</TableCell>
-													<TableCell>{r.predikat || "-"}</TableCell>
 													<TableCell>
 														<Badge
 															variant="outline"
@@ -293,14 +275,11 @@ export default function VerificationResultsPage() {
 															{cfg.label}
 														</Badge>
 													</TableCell>
-													<TableCell className="text-center">
-														<ScoreTrend trend={r.trend} />
-													</TableCell>
 												</TableRow>
 
 												{isExpanded && (
 													<TableRow className="bg-muted-foreground/10">
-														<TableCell colSpan={11} className="p-4 space-y-3">
+														<TableCell colSpan={9} className="p-4 space-y-3">
 															{/* Reason Accordion */}
 															<div className="border rounded p-2">
 																<div
