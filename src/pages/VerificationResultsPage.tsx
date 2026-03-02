@@ -205,6 +205,10 @@ export default function VerificationResultsPage() {
 									<TableHead></TableHead>
 									<TableHead>NIK</TableHead>
 									<TableHead>Nama</TableHead>
+									<TableHead>Tempat Lahir</TableHead>
+									<TableHead>Tanggal Lahir</TableHead>
+									<TableHead>Jenis Kelamin</TableHead>
+									<TableHead>Alamat</TableHead>
 									<TableHead className="text-center">Identity</TableHead>
 									<TableHead className="text-center">Risk</TableHead>
 									<TableHead className="text-center">Compliance</TableHead>
@@ -218,7 +222,7 @@ export default function VerificationResultsPage() {
 								{results.length === 0 ? (
 									<TableRow>
 										<TableCell
-											colSpan={9}
+											colSpan={13}
 											className="text-center py-12 text-muted-foreground"
 										>
 											Belum ada hasil verifikasi.
@@ -249,6 +253,12 @@ export default function VerificationResultsPage() {
 													<TableCell className="font-medium">
 														{r.nama}
 													</TableCell>
+													<TableCell>{r.tempat_lahir}</TableCell>
+													<TableCell>{r.tanggal_lahir}</TableCell>
+													<TableCell>{r.jenis_kelamin}</TableCell>
+													<TableCell className="font-mono">
+														{r.alamat}
+													</TableCell>
 													<TableCell className="text-center font-mono">
 														{r.identity_score}
 													</TableCell>
@@ -271,15 +281,14 @@ export default function VerificationResultsPage() {
 															variant="outline"
 															className={`${cfg.badgeClass} gap-1`}
 														>
-															{cfg.icon}
-															{cfg.label}
+															{cfg.icon} {cfg.label}
 														</Badge>
 													</TableCell>
 												</TableRow>
 
 												{isExpanded && (
 													<TableRow className="bg-muted-foreground/10">
-														<TableCell colSpan={9} className="p-4 space-y-3">
+														<TableCell colSpan={13} className="p-4 space-y-3">
 															{/* Reason Accordion */}
 															<div className="border rounded p-2">
 																<div
