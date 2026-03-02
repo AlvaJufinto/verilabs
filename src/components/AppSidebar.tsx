@@ -1,6 +1,6 @@
 /** @format */
 
-import { Activity, ClipboardList, Database } from "lucide-react";
+import { ClipboardList, Database } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 import Logo from "@/assets/logo/verilabs.png";
@@ -18,9 +18,9 @@ import {
 
 const ROUTE_URL = [
 	//{ title: "Blacklist Management", url: "/blacklist", icon: ShieldCheck },
+	{ title: "Verification Results", url: "/", icon: ClipboardList },
 	{ title: "Data Dukcapil", url: "/dukcapil", icon: Database },
-	{ title: "Decision Engine", url: "/", icon: Activity },
-	{ title: "Verification Results", url: "/results", icon: ClipboardList },
+	//{ title: "Decision Engine", url: "/", icon: Activity },
 	//{ title: "Audit Logs", url: "/audit", icon: FileText },
 ];
 
